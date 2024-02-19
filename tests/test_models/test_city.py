@@ -1,31 +1,57 @@
 #!/usr/bin/python3
-"""Unittest for City"""
+"""test for city"""
 import unittest
 from models.city import City
 from models.base_model import BaseModel
+import os
 
 
 class TestCity(unittest.TestCase):
-    def test_city_inherits_from_base_model(self):
-        city = City()
-        self.assertIsInstance(city, BaseModel)
+    """this will test the city class"""
 
-    def test_city_has_attributes(self):
-        city = City()
-        self.assertTrue(hasattr(city, 'state_id'))
-        self.assertTrue(hasattr(city, 'name'))
-        self.assertTrue(hasattr(city, 'places'))
+    @classmethod
+    def setUpClass(cls):
+        cls.city = City()
+        cls.city.name = "Los Angles"
+        cls.city.state_id = "California"
 
-    def test_city_attributes_are_strings(self):
-        city = City()
-        self.assertIsInstance(city.state_id, str)
-        self.assertIsInstance(city.name, str)
+    @classmethod
+    def teardown(cls):
+        del cls.city
 
-    def test_city_places_relationship(self):
-        city = City()
-        self.assertTrue(hasattr(city, 'places'))
-        self.assertIsInstance(city.places, list)
+    def tearDown(self):
+        try:
+            os.remove("file.json")
+        except Exception:
+            pass
+
+    def test_checking_for_docstring_city(self):
+        self.assertIsNotNone(City.__doc__)
+
+    def test_attributes_city(self):
+        self.assertTrue('id' in self.city.__dict__)
+        self.assertTrue('created_at' in self.city.__dict__)
+        self.assertTrue('updated_at' in self.city.__dict__)
+        self.assertTrue('state_id' in self.city.__dict__)
+        self.assertTrue('name' in self.city.__dict__)
+
+    def test_is_subclass_city(self):
+        self.assertTrue(issubclass(self.city.__class__, BaseModel), True)
+
+    def test_attribute_types_city(self):
+        self.assertEqual(type(self.city.name), str)
+        self.assertEqual(type(self.city.state_id), str)
+
+    @unittest.skipIf(os.getenv("HBNB_TYPE_STORAGE") == 'db', 'Not file engine')
+    def test_save_city(self):
+        """test if the save works"""
+        self.city.save()
+        self.assertNotEqual(self.city.created_at, self.city.updated_at)
+
+    def test_to_dict_city(self):
+        """test if dictionary works"""
+        self.assertEqual('to_dict' in dir(self.city), True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

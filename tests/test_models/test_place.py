@@ -15,15 +15,15 @@ class TestPlace(unittest.TestCase):
         cls.place = Place()
         cls.place.city_id = "124-abcd"
         cls.place.user_id = "432-dcba"
-        cls.place.name = "Death Star"
-        cls.place.description = "UNLIMITED POWER!"
+        cls.place.name = "i don't care"
+        cls.place.description = "Unlimited power!"
         cls.place.number_rooms = 1000
         cls.place.number_bathrooms = 1
         cls.place.max_guest = 607360
         cls.place.price_by_night = 10
         cls.place.latitude = 160.01
         cls.place.longitude = 120.01
-        cls.place.amenity_ids = ["1324-lksdjkl"]
+        cls.place.amenity_ids = ["1324-lkjchn"]
 
     @classmethod
     def teardown(cls):

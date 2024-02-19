@@ -1,24 +1,28 @@
 #!/usr/bin/python3
-"""This is the DBStorage class for AirBnB"""
+""" This modules handles Database Storage """
+from sqlalchemy import create_engine
 from os import getenv
+from models.base_model import Base
+from models.city import City
+from models.place import Place
+from models.review import Review
+from models.state import State
+from sqlalchemy.orm import sessionmaker, scoped_session
+from models.user import User
+from models.amenity import Amenity
 
 
 class DBStorage:
-    from sqlalchemy.orm import sessionmaker, scoped_session
-    from models.user import User
-    from models.state import State
-    from models.city import City
-    from models.place import Place
-    from models.review import Review
-    from models.amenity import Amenity
-    """This class is the storage engine for AirBnB"""
-
+    '''
+    Handles database engine
+    '''
     __engine = None
     __session = None
 
     def __init__(self):
-        """database engine"""
-        from sqlalchemy import create_engine
+        '''
+        Create engine for database
+        '''
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(
             getenv('HBNB_MYSQL_USER'),
             getenv('HBNB_MYSQL_PWD'),
@@ -27,41 +31,61 @@ class DBStorage:
             pool_pre_ping=True
         )
 
+        if getenv('HBNB_ENV') == 'test':
+            Base.metadata.drop_all(self.__engine)
+
     def all(self, cls=None):
-        """query on the current database session"""
-        new_dict = {}
+        '''
+        query for all objects on the current database session
+        '''
+        classes = {
+            "City": City,
+            "State": State,
+            "User": User,
+            "Place": Place,
+            "Review": Review,
+            "Amenity": Amenity,
+        }
+        result = {}
+        query_rows = []
+
         if cls:
-            for obj in self.__session:
-                if type(obj).__name__ == cls:
-                    new_dict[obj.__class__.__name__ + '.' + obj.id] = obj
+            if type(cls) is str:
+                cls = eval(cls)
+            query_rows = self.__session.query(cls)
+            for obj in query_rows:
+                key = '{}.{}'.format(type(obj).__name__, obj.id)
+                result[key] = obj
+            return result
         else:
-            for obj in self.__session:
-                new_dict[obj.__class__.__name__ + '.' + obj.id] = obj
-        return new_dict
+            for name, value in classes.items():
+                query_rows = self.__session.query(value)
+                for obj in query_rows:
+                    key = '{}.{}'.format(name, obj.id)
+                    result[key] = obj
+            return result
 
     def new(self, obj):
-        """add the object to the current database session"""
+        '''add the object to the current database session'''
         self.__session.add(obj)
 
     def save(self):
+        '''commit all changes of the current database session'''
         self.__session.commit()
 
     def delete(self, obj=None):
-        if obj:
-            self.__session.delete(obj)
+        '''delete obj from the current database session'''
+        self.__session.delete(obj)
 
     def reload(self):
-        from models.base_model import Base
-        self.__session = self.scoped_session(self.sessionmaker(bind=self.__engine))
-        self.__session.configure(bind=self.__engine, expire_on_commit=False)
-        self.__session = self.scoped_session(self.sessionmaker(bind=self.__engine))
         Base.metadata.create_all(self.__engine)
+        session_factory = sessionmaker(
+            bind=self.__engine, expire_on_commit=False)
+        Session = scoped_session(session_factory)
+        self.__session = Session()
 
     def close(self):
-        from models import storage
-        self.__session.remove()
+        """
+        Because SQLAlchemy doesn't reload his `Session`
+        """
         self.__session.close()
-        self.__engine.dispose()
-        self.__session = None
-        self.__engine = None
-        storage.close()   

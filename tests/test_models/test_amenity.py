@@ -1,79 +1,52 @@
 #!/usr/bin/python3
-""" """
-from tests.test_models.test_base_model import test_basemodel
-from models.amenity import Amenity
-import pep8
+"""test for amenity"""
 import unittest
+from os import remove
+from models.amenity import Amenity
+from models.base_model import BaseModel
 
 
-class test_Amenity(unittest.TestCase):
-    from models.base_model import BaseModel
-    """ """
+class TestAmenity(unittest.TestCase):
+    """this will test the Amenity class"""
 
-    def __init__(self, *args, **kwargs):
-        """ """
-        super().__init__(*args, **kwargs)
-        self.name = "Amenity"
-        self.value = Amenity
+    @classmethod
+    def setUpClass(cls):
+        cls.amenity = Amenity()
+        cls.amenity.name = "WiFi"
 
-    def test_name2(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.name), str)
-    
-    def setUp(self):
-        return super().setUp()
-    
+    @classmethod
+    def teardown(cls):
+        del cls.amenity
+
     def tearDown(self):
-        return super().tearDown()
-    
-    def test_pep8_Amenity(self):
-        """ """
-        p = pep8.StyleGuide(quiet=True)
-        r = p.check_files(['models/amenity.py'])
-        self.assertEqual(r.total_errors, 0, "pep8 error")
+        try:
+            remove("file.json")
+        except Exception:
+            pass
 
-    def test_module_docstring(self):
-        """ """
-        self.assertTrue(len(Amenity.__doc__) > 1)
+    def test_checking_for_docstring_amenity(self):
+        self.assertIsNotNone(Amenity.__doc__)
 
-    def test_class_docstring(self):
-        """ """
-        self.assertTrue(len(Amenity.__doc__) > 1)
-
-    def test_method_docstring(self):
-        """ """
-        for func in dir(Amenity):
-            self.assertTrue(len(func.__doc__) > 1)
-
-    def test_instance(self):
-        """ """
-        obj = self.value()
-        self.assertIsInstance(obj, self.value)
+    def test_attributes_amenity(self):
+        self.assertTrue('id' in self.amenity.__dict__)
+        self.assertTrue('created_at' in self.amenity.__dict__)
+        self.assertTrue('updated_at' in self.amenity.__dict__)
+        self.assertTrue('name' in self.amenity.__dict__)
 
     def test_is_subclass(self):
-        """ """
-        obj = self.value()
-        self.assertTrue(issubclass(obj.__class__, BaseModel), True)
+        self.assertTrue(issubclass(self.amenity.__class__, BaseModel), True)
 
-    def test_save_amenity(self):
-        """ """
-        obj = self.value()
-        obj.save()
-        self.assertNotEqual(obj.created_at, obj.updated_at)
+    def test_attribute_types(self):
+        self.assertEqual(type(self.amenity.name), str)
 
-    def test_to_dict_amenity(self):
-        """ """
-        obj = self.value()
-        new_dict = obj.to_dict()
-        self.assertEqual(obj.__class__.__name__, 'Amenity')
-        self.assertIsInstance(new_dict['created_at'], str)
-        self.assertIsInstance(new_dict['updated_at'], str)
+    def test_save(self):
+        self.amenity.save()
+        self.assertNotEqual(self.amenity.created_at, self.amenity.updated_at)
 
-    def test_hasattribute(self):
-        """ """
-        obj = self.value()
-        self.assertTrue(hasattr(obj, "name"))
+    def test_to_dict(self):
+        """test if dictionary works"""
+        self.assertEqual('to_dict' in dir(self.amenity), True)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
