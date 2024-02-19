@@ -11,10 +11,10 @@ class test_user(TestCase):
     def setUp(self):
         """ """
         self.user = User()
-        self.user.first_name = "levi"
-        self.user.last_name = "ackerman"
-        self.user.email = "yass00563@gmmail.com"
-        self.user.password = "secret"
+        self.user.first_name = "Guillaume"
+        self.user.last_name = "Snow"
+        self.user.email = "gui@hbtn.io"
+        self.user.password = "guipwd"
 
     def tearDown(self):
         """ """
