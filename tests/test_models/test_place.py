@@ -24,11 +24,6 @@ class TestPlace(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Place testing setup.
-        Temporarily renames any existing file.json.
-        Resets FileStorage objects dictionary.
-        Creates FileStorage, DBStorage and Place instances for testing.
-        """
         try:
             os.rename("file.json", "tmp")
         except IOError:
@@ -52,10 +47,6 @@ class TestPlace(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """Place testing teardown.
-        Restore original file.json.
-        Delete test instances.
-        """
         try:
             os.remove("file.json")
         except IOError:
@@ -76,17 +67,14 @@ class TestPlace(unittest.TestCase):
             del cls.dbstorage
 
     def test_pep8(self):
-        """Test pep8 styling."""
         style = pep8.StyleGuide(quiet=True)
         p = style.check_files(["models/place.py"])
         self.assertEqual(p.total_errors, 0, "fix pep8")
 
     def test_docstrings(self):
-        """Check for docstrings."""
         self.assertIsNotNone(Place.__doc__)
 
     def test_attributes(self):
-        """Check for attributes."""
         us = Place()
         self.assertEqual(str, type(us.id))
         self.assertEqual(datetime, type(us.created_at))
@@ -105,7 +93,6 @@ class TestPlace(unittest.TestCase):
     @unittest.skipIf(type(models.storage) == FileStorage,
                      "Testing FileStorage")
     def test_nullable_attributes(self):
-        """Test that email attribute is non-nullable."""
         with self.assertRaises(OperationalError):
             self.dbstorage._DBStorage__session.add(Place(user_id=self.user.id,
                                                          name="Betty"))
@@ -125,7 +112,6 @@ class TestPlace(unittest.TestCase):
     @unittest.skipIf(type(models.storage) == DBStorage,
                      "Testing DBStorage")
     def test_reviews_filestorage(self):
-        """Test reviews attribute."""
         key = "{}.{}".format(type(self.review).__name__, self.review.id)
         self.filestorage._FileStorage__objects[key] = self.review
         reviews = self.place.reviews
@@ -135,7 +121,6 @@ class TestPlace(unittest.TestCase):
     @unittest.skipIf(type(models.storage) == DBStorage,
                      "Testing DBStorage")
     def test_amenities(self):
-        """Test amenities attribute."""
         key = "{}.{}".format(type(self.amenity).__name__, self.amenity.id)
         self.filestorage._FileStorage__objects[key] = self.amenity
         self.place.amenities = self.amenity
@@ -144,29 +129,24 @@ class TestPlace(unittest.TestCase):
         self.assertIn(self.amenity, amenities)
 
     def test_is_subclass(self):
-        """Check that Place is a subclass of BaseModel."""
         self.assertTrue(issubclass(Place, BaseModel))
 
     def test_init(self):
-        """Test initialization."""
         self.assertIsInstance(self.place, Place)
 
     def test_two_models_are_unique(self):
-        """Test that different Place instances are unique."""
         us = Place()
         self.assertNotEqual(self.place.id, us.id)
         self.assertLess(self.place.created_at, us.created_at)
         self.assertLess(self.place.updated_at, us.updated_at)
 
     def test_init_args_kwargs(self):
-        """Test initialization with args and kwargs."""
         dt = datetime.utcnow()
         st = Place("1", id="5", created_at=dt.isoformat())
         self.assertEqual(st.id, "5")
         self.assertEqual(st.created_at, dt)
 
     def test_str(self):
-        """Test __str__ representation."""
         s = self.place.__str__()
         self.assertIn("[Place] ({})".format(self.place.id), s)
         self.assertIn("'id': '{}'".format(self.place.id), s)
@@ -181,7 +161,6 @@ class TestPlace(unittest.TestCase):
     @unittest.skipIf(type(models.storage) == DBStorage,
                      "Testing DBStorage")
     def test_save_filestorage(self):
-        """Test save method with FileStorage."""
         old = self.place.updated_at
         self.place.save()
         self.assertLess(old, self.place.updated_at)
@@ -191,7 +170,6 @@ class TestPlace(unittest.TestCase):
     @unittest.skipIf(type(models.storage) == FileStorage,
                      "Testing FileStorage")
     def test_save_dbstorage(self):
-        """Test save method with DBStorage."""
         old = self.place.updated_at
         self.state.save()
         self.city.save()
@@ -212,7 +190,6 @@ class TestPlace(unittest.TestCase):
         cursor.close()
 
     def test_to_dict(self):
-        """Test to_dict method."""
         place_dict = self.place.to_dict()
         self.assertEqual(dict, type(place_dict))
         self.assertEqual(self.place.id, place_dict["id"])
