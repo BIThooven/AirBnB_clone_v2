@@ -8,6 +8,7 @@ import os
 env.hosts = ['54.196.29.133', '18.234.249.10']
 env.user = 'ubuntu'
 
+
 def do_pack():
     """genrating a tgz archive"""
     try:
@@ -37,7 +38,8 @@ def do_deploy(archive_path):
         run("sudo rm /tmp/{}".format(file_name))
         run("sudo mv /data/web_static/releases/{}/web_static/*\
             /data/web_static/releases/{}/".format(no_ext, no_ext))
-        run("sudo rm -rf /data/web_static/releases/{}/web_static".format(no_ext))
+        run("sudo rm -rf /data/web_static/releases/{}/web_static"
+            .format(no_ext))
         run("sudo rm -rf /data/web_static/current")
         run("sudo ln -s /data/web_static/releases/{}/ /data/web_static/current"
             .format(no_ext))
